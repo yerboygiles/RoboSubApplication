@@ -221,7 +221,7 @@ class MovementCommander:
                 self.PositionRunning = True
                 while self.Running:
                     if self.UsingSim:
-                        self.TelemetrySim.update(self.PixHawk.getPitch())
+                        self.TelemetrySim.update(self.PixHawk.getYaw())
                     self.WaitForSupplementary = False
                     self.UpdateThrustersPID()
                     # print("Yaw: ", self.PixHawk.getYaw())
@@ -465,6 +465,7 @@ class MovementCommander:
     #     "LOG START POINT",
     #     "RETURN TO START",
     # ]
+
     def AdvancedCommand(self, commandnum, supplementarycmd=None):
         if self.UsingPixHawk:
             pass
@@ -494,6 +495,7 @@ class MovementCommander:
     #     "RAM TARGET",
     #     "FIRE AT TARGET"
     # ]
+
     def TargetCommand(self, commandnum, target):
         self.Running = True
         targettaskdone = self.SearchForTarget(target)
