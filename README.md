@@ -1,4 +1,4 @@
-Welcome to the Wiki on RoboSub Control With Python!
+Welcome to the README for the Oregon Tech RoboSub Software
 Written By: Theodor Giles
 
 I will go into detail on how to: 
