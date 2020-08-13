@@ -24,7 +24,7 @@ GENERAL_THROTTLE = 17.5
 class MovementCommander:
 
     # initialize everything to supposed starting position
-    def __init__(self, usingvision, usingpixhawk):
+    def __init__(self, usingvision, usingpixhawk, usingsim):
         # setting up board serial port
         print("Communicating with Arduino...")
         # something so the serial buffer doesn't overflow
@@ -45,6 +45,7 @@ class MovementCommander:
 
         self.UsingVision = usingvision
         self.UsingPixHawk = usingpixhawk
+        self.UsingSim = usingsim
         if self.UsingVision:
             from ai_lib import AI
             self.VisionAI = AI("TensorFlow_Graph/Tflite")
@@ -58,7 +59,12 @@ class MovementCommander:
             print("MovementCommander is using PixHawk...")
         else:
             print("MovementCommander is not using PixHawk...")
-
+        if self.UsingSim:
+            from advancedtelemetry import Telemetry
+            self.TelemetrySim = Telemetry()
+            print("MovementCommander is using Telemetry...")
+        else:
+            print("MovementCommander is not using Telemetry...")
         # thruster hardpoint classes
         self.ThrusterLB = ThrusterDriver(2, self.board)  # left back
         self.ThrusterLF = ThrusterDriver(4, self.board)  # left front
@@ -214,6 +220,8 @@ class MovementCommander:
                 self.GyroRunning = True
                 self.PositionRunning = True
                 while self.Running:
+                    if self.UsingSim:
+                        self.TelemetrySim.update(self.PixHawk.getPitch())
                     self.WaitForSupplementary = False
                     self.UpdateThrustersPID()
                     # print("Yaw: ", self.PixHawk.getYaw())

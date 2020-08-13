@@ -38,7 +38,11 @@ ExportedObj/
 *.mdb
 *.opendb
 *.VC.db
+
+# pycharm crap
 /venv/
+*.idea
+/.idea/
 
 # Builds
 *.apk

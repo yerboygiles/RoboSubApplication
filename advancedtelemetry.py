@@ -57,63 +57,46 @@ colors = (
 )
 
 
-def NavMarker():
-    glBegin(GL_QUADS)
-    for surface in surfaces:
-        x = 0
-        for vertex in surface:
-            x += 1
-            glColor3fv(colors[x])
-            glVertex3fv(verticies[vertex])
-    glEnd()
-    glBegin(GL_LINES)
-    for edge in edges:
-        for vertex in edge:
-            glVertex3fv(verticies[vertex])
-    glEnd()
+class Telemetry:
+    def __init__(self):
+        pygame.init()
+        display = (800, 600)
+        pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
 
+        gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
 
-def main():
-    pygame.init()
-    display = (800, 600)
-    pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+        glTranslatef(0, 0, -20)
 
-    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+        object_passed = False
+        # glRotatef(25, 2, 1, 0)
 
-    glTranslatef(0, 0, -20)
+    def NavMarker(self):
+        glBegin(GL_QUADS)
+        for surface in surfaces:
+            x = 0
+            for vertex in surface:
+                x += 1
+                glColor3fv(colors[x])
+                glVertex3fv(verticies[vertex])
+        glEnd()
+        glBegin(GL_LINES)
+        for edge in edges:
+            for vertex in edge:
+                glVertex3fv(verticies[vertex])
+        glEnd()
 
-    object_passed = False
-    # glRotatef(25, 2, 1, 0)
-    while True:
-        yaw = 0
+    def update(self, yaw):
+        glRotatef(yaw, 0, 0, -10)
         pitch = 0
         roll = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    yaw = 5
-                if event.key == pygame.K_RIGHT:
-                    yaw = -5
-
-                if event.key == pygame.K_UP:
-                    pitch = 5
-                if event.key == pygame.K_DOWN:
-                    pitch = -5
-
-                if event.key == pygame.K_e:
-                    roll = 5
-                if event.key == pygame.K_e:
-                    roll = -5
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        NavMarker()
-        glRotatef(yaw, 0, 0, -10)
+        self.NavMarker()
         pygame.display.flip()
+        glRotatef(-yaw, 0, 0, -10)
         # glRotatef(-roll, 1, 0, 0)
         # glRotatef(-yaw, 0, 0, 1)
         # glRotatef(-pitch, 0, 1, 0)
-
-
-main()
