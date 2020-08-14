@@ -45,8 +45,16 @@ Our RoboSub hardware currently consists of-
 ***II. Software Environment***
 
    Pretty much all of the code is written in Python, so it is pretty proficient at handling lots of advanced computation, organization, and interfacing with other things, even hardware. I have the program set up in a sort of tree that flows upward from a starting program to another program, to another program, and branches out to other hardware and software based on what is required/asked of the program.
- 
-   The top-most program is technically "START_SUB.py", but can also be initialized by "button_listener.py", a script that is supposed to listen for a button press on the Raspberry Pi. This would be used when we don't have access to a wired connection from the Sub to a computer, but I mainly implemented it because I thought it would be cool to have a button and buzzer.
+   
+   The libraries we use are specified in the get_pi_requirements.sh, but I will also list them here.
+   PyFirmata - (arduino communication
+   Dronekit - (pixhawk communication)
+   Tensorflow - (AI development and interpretation)
+   OpenCV - (vision processing)
+   PyGame - (simulation)
+   PyOpenGL - (simulation)
+   
+   The top-most program of our custom application is technically "*START_SUB.py*", but can also be initialized by "*button_listener.py*", a script that is supposed to listen for a button press on the Raspberry Pi. This would be used when we don't have access to a wired connection from the Sub to a computer, but I mainly implemented it because I thought it would be cool to have a button and buzzer.
 
    **START_SUB** - 
 
@@ -60,12 +68,12 @@ Our RoboSub hardware currently consists of-
     Mission.terminate()
 ```
 
-"TaskIO" is the 2nd-highest program, which is initialized with "mission.txt", a basic text file consisting of the commands the Sub will run, and they are formatted to a certain standard, which I will go into detail later. The first boolean argument determines if we are using our vision processing algorithms/AIs, the second determines the use of the PixHawk and Gyro, but I may omit the ability to not use the PixHawk soon because of how important the gyro data is to the navigation of the RoboSub. 
-"get_tasks()" manages the "mission.txt" file and sends it to the corresponding classes and subsystems.
+*TaskIO* is the 2nd-highest program, which is initialized with *mission.txt*, a basic text file consisting of the commands the Sub will run, and they are formatted to a certain standard, which I will go into detail later. The first boolean argument determines if we are using our vision processing algorithms/AIs, the second determines the use of the PixHawk and Gyro, but I may omit the ability to not use the PixHawk soon because of how important the gyro data is to the navigation of the RoboSub. 
+*get_tasks()* manages the *mission.txt* file and sends it to the corresponding classes and subsystems.
 
    **task_io_lib_v2** -
 
-   This program is the first level at which commands are taken in, and controls the peripherals such as the Pixhawk and Vision Processing. It also initializes the MovementCommander
+   This program is the first level at which commands are taken in, and controls the peripherals such as the Pixhawk and Vision Processing. It also initializes the *MovementCommander*.
 
 ```
 #!python
@@ -99,12 +107,12 @@ class TaskIO:
         self.active = False
 ```
 
-   This function of TaskIO is basically a run() function, but it also puts all the "commands" from the Mission.txt into a list so we don't have to parse the text file in the MovementCommander(self.Movement) as well.
+   This function of TaskIO is basically a run() function, but it also puts all the "commands" from the *mission.txt* into a list so we don't have to parse the text file in the MovementCommander(*self.Movement*) as well.
    
    **movement_commander_v4** - 
 
    This program is the main meat and bones of the navigation, the command interpreting, thruster driving, data collecting, and I think it's the longest program in the application by lines of code. 
-   I feel like I don't need to explain the __init__() of MovementCommander, because it is self-explanatory, initializing each class and hardware we want it to.
+   I feel like I don't need to explain the *__init__()* of MovementCommander, because it is self-explanatory, initializing each class and hardware we want it to.
 
 ```
 #!python
@@ -122,9 +130,9 @@ class TaskIO:
             self.Advanced = False
 ```
 
-   This initial bit of code is iterating through each command that was saved from the Mission.txt and starts the process of determining what the command means/what it is supposed to accomplish. 
-    WaitForSupplementary is a variable dedicated to commands that require an argument after it, and TargetOrPosition is a variable meant for determining the sub-command of WaitForSupplementary, whether it be a target(A_TARGET), a gyro matrix(A_GYRO), or a position matrix(A_POSITION). 
-    The InitialTime and ElapsedTime variables are meant for basic time-based commands, or for when we get to the desired matrix, it waits a certain amount of time before starting the next command after reaching the desired position. 
+   This initial bit of code is iterating through each command that was saved from the *mission.txt* and starts the process of determining what the command means/what it is supposed to accomplish. 
+    *WaitForSupplementary* is a variable dedicated to commands that require an argument after it, and *TargetOrPosition* is a variable meant for determining the sub-command of WaitForSupplementary, whether it be a target(*A_TARGET*), a gyro matrix(*A_GYRO*), or a position matrix(*A_POSITION*). 
+    The *InitialTime* and *ElapsedTime* variables are meant for basic time-based commands, or for when we get to the desired matrix, it waits a certain amount of time before starting the next command after reaching the desired position. 
 
 ```
 #!python
@@ -198,7 +206,7 @@ This code here is for running the specific commands because once a "move command
    **pixhawk_data** - 
 
    This program is dedicated to receiving and parsing Mavlink data from the Pixhawk over serial, and then allowing it's data to be accessed, as well as taking in offset values for PID calculation. 
-    **Currently, only Proportional control has been tested.**
+    **!! Currently, only Proportional(the P in PID) control has been tested.  !!** 
 
 
 ```
