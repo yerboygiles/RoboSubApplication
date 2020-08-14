@@ -42,10 +42,10 @@ class PixHawk:
     Previous_Error = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
     Error_Sum = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
     Error_Delta = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-
-    Kp = [[0.3, 0.4, 0.4], [0.3, 0.4, 0.4]]
-    Ki = [[0.1, 0.1, 0.1], [0.1, 0.1, 0.1]]
-    Kd = [[0.1, 0.1, 0.1], [0.1, 0.1, 0.1]]
+        # gyro              position
+    Kp = [[0.7, 0.5, 0.5], [0.3, 0.4, 0.4]]
+    Ki = [[0.0, 0.00, 0.00], [0.1, 0.1, 0.1]]
+    Kd = [[0.3, 0.3, 0.3], [0.1, 0.1, 0.1]]
 
     North_PID = 0.0
     North_P = 0.0
@@ -139,7 +139,7 @@ class PixHawk:
                             # basically the same value as self.Error, but I have to set it here
                             # so I can get the new gyro data right after.
                             self.Angular_Motions[GYRO][PITCH] = (
-                                        self.Gyro[PITCH] - (float(EqualParse) * (180 / math.pi)))
+                                    self.Gyro[PITCH] - (float(EqualParse) * (180 / math.pi)))
                             self.Gyro[PITCH] = round(float(EqualParse) * (180 / math.pi), 5)
                         if i == 3:
                             self.Angular_Motions[GYRO][YAW] = (
@@ -259,19 +259,19 @@ class PixHawk:
         self.Yaw_P = (self.Error[GYRO][YAW] * self.Kp[GYRO][YAW])
         self.Yaw_I = (self.Error_Sum[GYRO][YAW] * self.Ki[GYRO][YAW])
         self.Yaw_D = (self.Error_Delta[GYRO][YAW] * self.Kd[GYRO][YAW])
-        self.Yaw_PID = self.Yaw_P  # + self.Yaw_I + self.Yaw_D
+        self.Yaw_PID = self.Yaw_P + self.Yaw_I + self.Yaw_D
 
         # Pitch PID variable setting
         self.Pitch_P = (self.Error[GYRO][PITCH] * self.Kp[GYRO][PITCH])
         self.Pitch_I = (self.Error_Sum[GYRO][PITCH] * self.Ki[GYRO][PITCH])
         self.Pitch_D = (self.Error_Delta[GYRO][PITCH] * self.Kd[GYRO][PITCH])
-        self.Pitch_PID = self.Pitch_P  # + self.Pitch_I + self.Pitch_D
+        self.Pitch_PID = self.Pitch_P + self.Pitch_I + self.Pitch_D
 
         # Roll PID variable setting
         self.Roll_P = (self.Error[GYRO][ROLL] * self.Kp[GYRO][ROLL])
         self.Roll_I = (self.Error_Sum[GYRO][ROLL] * self.Ki[GYRO][ROLL])
         self.Roll_D = (self.Error_Delta[GYRO][ROLL] * self.Kd[GYRO][ROLL])
-        self.Roll_PID = self.Roll_P  # + self.Roll_I + self.Roll_D
+        self.Roll_PID = self.Roll_P + self.Roll_I + self.Roll_D
 
         # North PID variable setting
         self.North_P = (self.Error[POSITION][NORTH] * self.Kp[POSITION][NORTH])

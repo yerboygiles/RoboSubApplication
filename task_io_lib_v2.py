@@ -12,13 +12,13 @@ from movement_commander_v4 import MovementCommander
 
 class TaskIO:
     # init
-    def __init__(self, filename, usingvision, usingpixhawk):
-        self.UsingVision = usingvision
-        self.UsingPixhawk = usingpixhawk
+    def __init__(self, filename, usingvision, usingpixhawk, usingsim):
         self.Filename = filename
         self.UsingVision = usingvision
+        self.UsingPixhawk = usingpixhawk
+        self.UsingSim = usingsim
         self.Active = False
-        self.Movement = MovementCommander(self.UsingVision, self.UsingPixhawk)
+        self.Movement = MovementCommander(self.UsingVision, self.UsingPixhawk, self.UsingSim)
         self.CommandList = []
 
     # get tasks from the .txt and completes them

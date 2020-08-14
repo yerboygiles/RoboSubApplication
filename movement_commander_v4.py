@@ -219,28 +219,38 @@ class MovementCommander:
                 self.Running = True
                 self.GyroRunning = True
                 self.PositionRunning = True
-                while self.Running:
-                    if self.UsingSim:
-                        self.TelemetrySim.update(self.PixHawk.getYaw())
-                    self.WaitForSupplementary = False
-                    self.UpdateThrustersPID()
-                    # print("Yaw: ", self.PixHawk.getYaw())
-                    # print("Right Back speed: ", MapToSpeed(self.ThrusterRB.GetSpeed()))
-                    if self.TargetOrPosition == A_GYRO:
-                        self.CheckIfGyroDone()
-                        self.Running = self.GyroRunning
-                    elif self.TargetOrPosition == A_POSITION:
-                        self.CheckIfPositionDone()
-                        self.Running = self.PositionRunning
-                    elif self.TargetOrPosition == A_TARGET:
-                        self.TargetCommand(self.CommandIndex, command)
-                    elif self.Basic:
-                        self.BasicCommand(self.CommandIndex)
-                    elif self.Advanced:
-                        self.AdvancedCommand(self.CommandIndex)
-                self.TargetOrPosition = 0
+                try:
+                    while self.Running:
+                        if self.UsingSim:
+                            self.TelemetrySim.update(self.PixHawk.getYaw())
+                        self.WaitForSupplementary = False
+                        self.UpdateThrustersPID()
+                        print("Yaw: ", self.PixHawk.getYaw())
+                        print("Pitch: ", self.PixHawk.getPitch())
+                        print("Down: ", self.PixHawk.getDown())
+                        # print("Roll: ", self.PixHawk.getRoll())
+                        # print("Right Back speed: ", MapToSpeed(self.ThrusterRB.GetSpeed()))
+                        if self.TargetOrPosition == A_GYRO:
+                            self.CheckIfGyroDone()
+                            self.Running = self.GyroRunning
+                        elif self.TargetOrPosition == A_POSITION:
+                            self.CheckIfPositionDone()
+                            self.Running = self.PositionRunning
+                        elif self.TargetOrPosition == A_TARGET:
+                            self.TargetCommand(self.CommandIndex, command)
+                        elif self.Basic:
+                            self.BasicCommand(self.CommandIndex)
+                        elif self.Advanced:
+                            self.AdvancedCommand(self.CommandIndex)
+                    self.TargetOrPosition = 0
+                except:
+                    self.BrakeAllThrusters()
+        self.BrakeAllThrusters()
 
     def CheckIfGyroDone(self, threshold=3, timethreshold=5):
+        self.PowerBR = -10
+        self.PowerBL = -10
+        self.PitchOffset = 0
         if (abs(self.PixHawk.getYaw() - self.YawOffset) < threshold) and (
                 abs(self.PixHawk.getPitch() - self.PitchOffset) < threshold) and (
                 abs(self.PixHawk.getRoll() - self.RollOffset) < threshold):
@@ -273,8 +283,8 @@ class MovementCommander:
         self.PixHawk.PID()
         self.ThrusterLB.SetSpeedPID(self.PowerLB, yawpid=self.PixHawk.getYawPID())
         self.ThrusterLF.SetSpeedPID(self.PowerLF, yawpid=self.PixHawk.getYawPID())
-        self.ThrusterRB.SetSpeedPID(self.PowerRB, yawpid=self.PixHawk.getYawPID())
-        self.ThrusterRF.SetSpeedPID(self.PowerRF, yawpid=self.PixHawk.getYawPID())
+        self.ThrusterRB.SetSpeedPID(self.PowerRB, yawpid=-self.PixHawk.getYawPID())
+        self.ThrusterRF.SetSpeedPID(self.PowerRF, yawpid=-self.PixHawk.getYawPID())
 
         self.ThrusterBL.SetSpeedPID(self.PowerBL,
                                     rollpid=self.PixHawk.getRollPID(),
@@ -520,6 +530,8 @@ class MovementCommander:
             elif commandnum == 1:
                 if Distance < 100:
                     speed = 80
+                elif Distance < 30:
+                    targettaskdone = True
                 elif (Distance < 30) or not FoundTarget:
                     time.sleep(3)
                     targettaskdone = True
