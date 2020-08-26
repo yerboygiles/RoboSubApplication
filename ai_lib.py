@@ -7,9 +7,7 @@
 
 class AI:
     def __init__(self, model_dir, show_images=False):
-        import Theos_Really_Good_Detection_Script as obj_det
-        self.detector = obj_det
-        self.detector.init(model_dir, True)
+        self.detector = obj_det.Detector(model_dir, True) #1. model dir, 2. show images
         self.results = None
 
     def process_image(self, target):

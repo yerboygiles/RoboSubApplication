@@ -47,8 +47,8 @@ class MovementCommander:
         self.UsingPixHawk = usingpixhawk
         self.UsingSim = usingsim
         if self.UsingVision:
-            from ai_lib import AI
-            self.VisionAI = AI("TensorFlow_Graph/Tflite")
+            import Theos_Really_Good_Detection_Script as obj_det
+            self.VisionAI = obj_det.Detector("TensorFlow_Graph/Tflite", False)
             print("MovementCommander is using Vision AI...")
         else:
             print("MovementCommander is not using Vision AI...")
@@ -337,7 +337,12 @@ class MovementCommander:
     def BasicCommand(self, speed=GENERAL_THROTTLE):
         if self.UsingPixHawk:
             self.PixHawk.UpdateGyro()
-            self.PixHawk.CalculateError()
+            self.PixHawk.CalculateError(self.YawOffset,
+                                        self.PitchOffset,
+                                        self.RollOffset,
+                                        self.NorthOffset,
+                                        self.EastOffset,
+                                        self.DownOffset)
             self.PixHawk.PID()
         DownConst = -5.0
         # 0 = FORWARD
@@ -483,7 +488,12 @@ class MovementCommander:
             pass
         if self.UsingPixHawk:
             self.PixHawk.UpdateGyro()
-            self.PixHawk.CalculateError()
+            self.PixHawk.CalculateError(self.YawOffset,
+                                        self.PitchOffset,
+                                        self.RollOffset,
+                                        self.NorthOffset,
+                                        self.EastOffset,
+                                        self.DownOffset)
             self.PixHawk.PID()
             if commandnum == 5:
                 # horizontal
@@ -516,14 +526,14 @@ class MovementCommander:
         else:
             print("No target found. Wait 1...")
             time.sleep(1)
-        while not targettaskdone:
-            LateralDistance, Distance, OffCenterX, OffCenterY, \
-                            FoundTarget = self.VisionAI.process_image(target)
+        while targettaskdone:
+            self.VisionAI.process_image(target)
             self.PitchOffset = self.PixHawk.getPitch()
             self.YawOffset = self.PixHawk.getYaw()
-            self.PitchOffset += math.acos(LateralDistance/OffCenterY)
-            self.YawOffset += math.acos(LateralDistance/OffCenterY)
-            speed = 30 - OffCenterX - OffCenterY * Distance/100
+            self.PitchOffset += self.VisionAI.getLatDistanceMM()
+            self.PitchOffset += math.acos(LateralDistance / OffCenterY)
+            self.YawOffset += math.acos(LateralDistance / OffCenterY)
+            speed = 30 - OffCenterX - OffCenterY * Distance / 100
             if commandnum == 0:
                 if Distance < 100:
                     targettaskdone = True

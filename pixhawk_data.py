@@ -5,7 +5,6 @@
 # Description:
 # gets data from the simulated/non-simulated pixhawk for attitude, positioning, and maybe some
 # other cool tasks it can do
-#
 
 from dronekit import connect, VehicleMode
 import time

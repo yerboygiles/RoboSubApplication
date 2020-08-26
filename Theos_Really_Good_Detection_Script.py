@@ -173,6 +173,7 @@ class Detector:
         self.output_details = self.interpreter.get_output_details()
         self.height = self.input_details[0]['shape'][1]
         self.width = self.input_details[0]['shape'][2]
+        self.ObjectVector = [0.0, 0.0]
 
         self.floating_model = (self.input_details[0]['dtype'] == np.float32)
 
@@ -232,14 +233,19 @@ class Detector:
 
         # checking for specific target
         if self.Target_NAME is not None:
-            LateralDistanceMM, DistanceMM, OffCenterX, OffCenterY, FoundTarget = self.process_distance()
+            self.process_distance()
         else:
-            LateralDistanceMM = 0
-            DistanceMM = 0
-            OffCenterX = 0
-            OffCenterY = 0
-            FoundTarget = False
-        return LateralDistanceMM, DistanceMM, OffCenterX, OffCenterY, FoundTarget
+            self.LateralDistanceMM = 0
+            self.DistanceMM = 0
+            self.OffCenterX = 0
+            self.OffCenterY = 0
+            self.FoundTarget = False
+
+    def getLatDistanceMM(self):
+        return self.LateralDistanceMM
+
+    def getObjectVector(self):
+        return self.ObjectVector
 
     def draw_detected_frame(self, frame):
         # Loop over all detections and draw detection box if confidence is above minimum threshold
@@ -290,7 +296,7 @@ class Detector:
         self.OffCenterX = 0
         self.OffCenterY = 0
         self.LateralDistance = 0.0
-        self.Distance = 0.0
+        self.DistanceMM = 0.0
         self.FoundTarget = False
         for i in range(len(self.Scores)):
             if (self.Scores[i] > self.min_conf_threshold) and (self.Scores[i] <= 1.0):
@@ -309,19 +315,20 @@ class Detector:
                     self.TargetYSize = 200
                 if object_name == self.Target_NAME:
                     FoundTarget = True
-                    LateralDistance, Distance, OffCenterX, OffCenterY = self.distance3()
-                    return LateralDistance, Distance, OffCenterX, OffCenterY, FoundTarget
+                    self.distance3()
 
     def distance3(self):
         THEODORS_NUMBER = 0.0516657316
         SizeX = (self.MaxX - self.MinX)
         SizeY = (self.MaxY - self.MinY)
-        OffCenterX = int(self.MaxX - (SizeX / 2)) - int(self.imageWidth / 2)
-        OffCenterY = int(self.MaxY - (SizeY / 2)) - int(self.imageHeight / 2)
+        self.OffCenterX = int(self.MaxX - (SizeX / 2)) - int(self.imageWidth / 2)
+        self.OffCenterY = int(self.MaxY - (SizeY / 2)) - int(self.imageHeight / 2)
         # lateral distance of camera from object
-        LateralDistance = (self.TargetYSize * self.Focal_LENGTH) / SizeY
+        self.LateralDistance = (self.TargetYSize * self.Focal_LENGTH) / SizeY
+        self.ObjectVector[0] = math.atan(self.OffCenterY/self.LateralDistance) * (180/math.pi)
+        self.ObjectVector[1] = math.atan(self.OffCenterX/self.LateralDistance) * (180/math.pi)
         # to mm
-        LateralDistance = (LateralDistance / THEODORS_NUMBER) * 10
+        self.LateralDistance = (self.LateralDistance / THEODORS_NUMBER) * 10
 
         # a side of mm travel laterally triangle
         TargetPX = SizeY / 2
@@ -329,15 +336,14 @@ class Detector:
         # ratio of pixel to mm
         MM__PX = TargetPX / TargetMM
         # b side of mm travel laterally triangle
-        Bpx = math.sqrt(pow(OffCenterX, 2) + pow(OffCenterY, 2))
+        Bpx = math.sqrt(pow(self.OffCenterX, 2) + pow(self.OffCenterY, 2))
         Bmm = Bpx * MM__PX
         # c side of mm travel laterally triangle
         # true exact distance of camera from object, no matter
         # where it is on the plane
-        Distance = math.sqrt(pow(Bmm, 2) + pow(LateralDistance, 2))
-        OffCenterXMM = OffCenterX * MM__PX
-        OffCenterYMM = OffCenterY * MM__PX
-        return LateralDistance, Distance, OffCenterXMM, OffCenterYMM
+        self.DistanceMM = math.sqrt(pow(Bmm, 2) + pow(self.LateralDistance, 2))
+        self.OffCenterXMM = self.OffCenterX * MM__PX
+        self.OffCenterYMM = self.OffCenterY * MM__PX
 
     def finalize(self):
         # Clean up
