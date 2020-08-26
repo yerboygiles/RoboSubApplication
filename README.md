@@ -335,4 +335,5 @@ class VideoStream:
         self.stopped = True
 ```
    This is some code from another project written by Adrian Rosebrock: PyImageSearch: https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/
+   
    It is meant to improve the speed of vision processing by putting the video streaming in another thread in the Python program. 
