@@ -61,7 +61,6 @@ Our RoboSub hardware currently consists of-
    This is the most simple program in the entire application, but you can also control the use of the Pixhawk and/or implemented vision processing. 
 
 ```
-#!python
 
     Mission = TaskIO("mission.txt", False, True)
     Mission.get_tasks()
@@ -76,7 +75,6 @@ Our RoboSub hardware currently consists of-
    This program is the first level at which commands are taken in, and controls the peripherals such as the Pixhawk and Vision Processing. It also initializes the *MovementCommander*.
 
 ```
-#!python
 class TaskIO:
     # init
     def __init__(self, filename, usingvision, usingpixhawk):
@@ -92,7 +90,6 @@ class TaskIO:
    This is the init, and as you can see, it takes two boolean arguments if the user wants to use the vision processing and/or the PixHawk. 
 
 ```
-#!python
 # get tasks from the .txt and completes them
     def get_tasks(self):
         # Testing
@@ -115,7 +112,6 @@ class TaskIO:
    I feel like I don't need to explain the *__init__()* of MovementCommander, because it is self-explanatory, initializing each class and hardware we want it to.
 
 ```
-#!python
 # handles list of commands
     def receiveCommands(self, commandlist):
         self.WaitForSupplementary = False
@@ -135,7 +131,6 @@ class TaskIO:
     The *InitialTime* and *ElapsedTime* variables are meant for basic time-based commands, or for when we get to the desired matrix, it waits a certain amount of time before starting the next command after reaching the desired position. 
 
 ```
-#!python
 if self.WaitForSupplementary:
     trupleindex = 0
     for value in command.split('x'):
@@ -175,7 +170,6 @@ This set of code checks the value of each command in the command list and sets t
 
 
 ```
-#!python
 if self.IsMoveCommand:
     self.Running = True
     self.GyroRunning = True
@@ -210,7 +204,6 @@ This code here is for running the specific commands because once a "move command
 
 
 ```
-#!python
 GYRO: int = 0
 POSITION: int = 1
 YAW: int = 0
@@ -270,7 +263,6 @@ All these variables are for very specific calculations, so I will walk through h
 
 
 ```
-#!python
 i = 0
 for CommaParse in str(self.vehicle.attitude).split(','):
     if CommaParse is not None:
@@ -301,7 +293,6 @@ This is the code to parse the string data read from the Dronekit library that th
    This program is for managing the detection of objects through tensorflow, interpreting a .tflite model and finding scores, boxes, and labels of detected objects so we can send the data to other program for advanced control requiring this advanced robotic vision. 
    
 ```
-#!python
 class VideoStream:
     """Camera object that controls video streaming from the Picamera"""
 
