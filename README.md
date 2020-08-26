@@ -294,3 +294,54 @@ for CommaParse in str(self.vehicle.attitude).split(','):
 ```
 
 This is the code to parse the string data read from the Dronekit library that the Raspberry Pi uses to receive serial data from the Pixhawk, and because the data read back is more like readable telemetry, there is some string splitting that must occur, and the data is at certain points in the string, which is why the values are set to the converted strings when "i" is compared to a certain value in the for loop. I plan to improve this process at some point, making it faster, and I will update this Wiki accordingly.
+
+
+   **Theos_Really_Good_Detection_Script** - 
+   
+   This program is for managing the detection of objects through tensorflow, interpreting a .tflite model and finding scores, boxes, and labels of detected objects so we can send the data to other program for advanced control requiring this advanced robotic vision. 
+   
+```
+#!python
+class VideoStream:
+    """Camera object that controls video streaming from the Picamera"""
+
+    def __init__(self, resolution=(640, 480)):
+        # Initialize the PiCamera and the camera image stream
+        self.stream = cv2.VideoCapture(0)
+        ret = self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        ret = self.stream.set(3, resolution[0])
+        ret = self.stream.set(4, resolution[1])
+
+        # Read first frame from the stream
+        (self.grabbed, self.frame) = self.stream.read()
+
+        # Variable to control when the camera is stopped
+        self.stopped = False
+
+    def start(self):
+        # Start the thread that reads frames from the video stream
+        self.thread = Thread(target=self.stopped, args=()).start()
+        return self
+
+    def update(self):
+        # Keep looping indefinitely until the thread is stopped
+        while True:
+            # If the camera is stopped, stop the thread
+            if self.stopped:
+                # Close camera resources
+                self.stream.release()
+                return
+
+            # Otherwise, grab the next frame from the stream
+            (self.grabbed, self.frame) = self.stream.read()
+
+    def read(self):
+        # Return the most recent frame
+        return self.frame
+
+    def stop(self):
+        # Indicate that the camera and thread should be stopped
+        self.stopped = True
+```
+   This is some code from another project written by Adrian Rosebrock: PyImageSearch: https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/
+   It is meant to improve the speed of vision processing by putting the video streaming in another thread in the Python program. 
